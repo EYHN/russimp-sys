@@ -1,14 +1,14 @@
 [package]
-name = "russimp-sys"
+name = "russimp-sys-static"
 version = "1.0.0"
-authors = ["Jhonny Knaak de Vargas"]
+authors = ["EYHN"]
 edition = "2018"
 license-file = "LICENSE"
 readme = "README.md"
-homepage = "https://github.com/jkvargas/russimp-sys"
+homepage = "https://github.com/EYHN/russimp-sys"
 categories = ["rendering", "external-ffi-bindings", "game-engines", "multimedia"]
 keywords = ["assimp", "3d", "blend", "3ds", "glTF"]
-repository = "https://github.com/jkvargas/russimp-sys"
+repository = "https://github.com/EYHN/russimp-sys"
 description = "Raw Assimp bindings for rust"
 exclude = ["/assimp"]
 
