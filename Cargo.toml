@@ -1,6 +1,6 @@
 [package]
 name = "russimp-sys-static"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["EYHN"]
 edition = "2018"
 license-file = "LICENSE"
@@ -17,7 +17,7 @@ name = "russimp_sys"
 path = "src/lib.rs"
 
 [features]
-default = ["prebuilt"]
+default = []
 prebuilt = ["static-link"]
 static-link = []
 nozlib = []
