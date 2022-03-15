@@ -70,7 +70,7 @@ fn install(manifest: &BuildManifest) {
     fs::copy(&manifest.bindings_rs, bindings_path).unwrap();
 }
 
-fn build_from_source(target: &Target) -> BuildManifest {
+fn build_from_source(target: &Target, crt_static: bool) -> BuildManifest {
     let current_dir = env::current_dir().expect("Failed to get current dir");
 
     println!("cargo:rerun-if-env-changed=ASSIMP_SOURCE_DIR");
@@ -137,6 +137,12 @@ fn build_from_source(target: &Target) -> BuildManifest {
             panic!("MinGW is not supported");
         }
 
+        assimp_cmake
+            .arg(format!(
+                "-DUSE_STATIC_CRT={}",
+                if crt_static { "ON" } else { "OFF" }
+            ));
+
         match target.architecture.as_str() {
             "x86_64" => assimp_cmake.args(["-A", "x64"]),
             "i686" => assimp_cmake.args(["-A", "Win32"]),
@@ -144,6 +150,10 @@ fn build_from_source(target: &Target) -> BuildManifest {
         };
     } else {
         // if not windows,  use ninja and clang
+        if crt_static {
+            panic!("Only windows support crt-static")
+        }
+
         assimp_cmake
             .env(
                 "CMAKE_GENERATOR",
@@ -308,11 +318,17 @@ fn unpack(package: impl AsRef<Path>) -> BuildManifest {
 }
 
 fn main() {
+    let linkage = env::var("CARGO_CFG_TARGET_FEATURE").unwrap_or(String::new());
+    let crt_static = linkage.contains("crt-static");
+
     let target = build_support::Target::target();
     let version = env::var("CARGO_PKG_VERSION").unwrap();
     let mut feature_suffix = String::new();
     if cfg!(feature = "nozlib") {
         feature_suffix.push_str("-nozlib");
+    }
+    if crt_static {
+        feature_suffix.push_str("-crtstatic");
     }
 
     let cache_tar_name = format!(
@@ -329,7 +345,7 @@ fn main() {
     let build_manifest = if use_cache {
         download_from_cache(&cache_tar_name, &version)
     } else {
-        let build_manifest = build_from_source(&target);
+        let build_manifest = build_from_source(&target, crt_static);
 
         // write build result to cache directory
         println!("cargo:rerun-if-env-changed=RUSSIMP_BUILD_CACHE_DIR");

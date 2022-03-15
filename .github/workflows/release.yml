@@ -27,12 +27,19 @@ jobs:
         target:
           - os: ubuntu-20.04
             triple: x86_64-unknown-linux-gnu
+            rustflags: ''
           - os: macos-11
             triple: x86_64-apple-darwin
+            rustflags: ''
           - os: macos-11
             triple: aarch64-apple-darwin
+            rustflags: ''
           - os: windows-2019
             triple: x86_64-pc-windows-msvc
+            rustflags: '-C target-feature=+crt-static'
+          - os: windows-2019
+            triple: x86_64-pc-windows-msvc
+            rustflags: '-C target-feature=-crt-static'
         features: ['static-link', 'static-link,nozlib']
     steps:
       - name: Checkout
@@ -68,6 +75,7 @@ jobs:
           RUSSIMP_BUILD_CACHE_DIR: ${{ runner.temp }}/release
           RUSSIMP_BUILD_OUT_DIR: ${{ runner.temp }}/out
           RUSSIMP_PREBUILT: OFF
+          RUSTFLAGS: ${{ matrix.target.rustflags }}
         run: |
           cargo build -vv --release --no-default-features --features ${{ matrix.features }} --target ${{ matrix.target.triple }}
         shell: bash
